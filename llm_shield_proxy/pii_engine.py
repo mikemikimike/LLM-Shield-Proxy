@@ -58,6 +58,14 @@ TIER1_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
         "JWT_TOKEN",
         re.compile(r"\bey[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]*\b"),
     ),
+    (
+        "UK_NINO",
+        re.compile(
+            r"\b(?!(?:GB|BG|NK|TN|ZZ))"
+            r"[A-Z]{2}"
+            r"(?:[- ]?\d{2}){3}[- ]?[ABCD]\b"
+        ),
+    ),
     ("MRN", re.compile(r"\b\d{3}-\d{2}-\d{2}[A-Za-z0-9]\b")),
 ]
 

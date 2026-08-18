@@ -46,6 +46,31 @@ def test_pii_tier1_structured_redaction():
     assert rehydrated == sample_text
 
 
+def test_uk_nino_redaction_accepts_standard_formats():
+    """Redacts UK National Insurance numbers with optional separators."""
+    engine = PIIEngine(enable_tier2=False, enable_tier3=False)
+    vault = Vault(synthetic=False)
+
+    redacted = engine.redact_text(
+        "NINO QQ123456C and QQ 12 34 56 C and QQ-12-34-56-C", vault
+    )
+
+    assert redacted.count("[UK_NINO_") == 3
+    assert "QQ123456C" not in redacted
+    assert "QQ 12 34 56 C" not in redacted
+    assert "QQ-12-34-56-C" not in redacted
+
+
+def test_uk_nino_redaction_rejects_invalid_prefixes_and_shapes():
+    """Does not redact disallowed prefixes, suffixes, or malformed numbers."""
+    engine = PIIEngine(enable_tier2=False, enable_tier3=False)
+    vault = Vault(synthetic=False)
+
+    text = "GB123456A ZZ123456D QQ12345A QQ123456E QQ123456A1"
+
+    assert engine.redact_text(text, vault) == text
+
+
 def test_pii_tier2_shannon_entropy_redaction():
     """Tests Tier 2 Shannon entropy detection for raw unformatted high-entropy secrets."""
     engine = PIIEngine(enable_tier2=True, enable_tier3=False, entropy_threshold=4.5)
